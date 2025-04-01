@@ -23,11 +23,9 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$(pwd)/app" >> $GITHUB_ENV
-
-      - name: Run tests
+      - name: Set PYTHONPATH and run tests
         run: |
+          export PYTHONPATH=$(pwd)/app
           pytest
           
   cd:
@@ -48,11 +46,13 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/fastapi-ci-cd:latest .
+          REPO_OWNER=$(echo $GITHUB_ACTOR | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/$REPO_OWNER/fastapi-ci-cd:latest .
 
       - name: Push Docker Image to GHCR
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/fastapi-ci-cd:latest
+          REPO_OWNER=$(echo $GITHUB_ACTOR | tr '[:upper:]' '[:lower:]')
+          docker push ghcr.io/$REPO_OWNER/fastapi-ci-cd:latest
 
       - name: Logout from GHCR
         run: docker logout ghcr.io
